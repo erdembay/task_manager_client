@@ -4,9 +4,7 @@
       <h1 class="title">404</h1>
       <p class="subtitle">Sayfa Bulunamadı</p>
       <p class="description">Aradığınız sayfa maalesef bulunamadı.</p>
-      <router-link to="/create_process" class="home-link"
-        >Ana Sayfaya Dön</router-link
-      >
+      <router-link to="/" class="home-link">Ana Sayfaya Dön</router-link>
     </div>
   </div>
 </template>

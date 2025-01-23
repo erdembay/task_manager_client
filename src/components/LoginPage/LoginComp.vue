@@ -68,8 +68,9 @@ export default {
             username: this.userData.username,
             password: this.userData.password,
           });
+          console.log(response);
           if (response?.status) {
-            this.$router.push("/");
+            this.$router.go();
           } else {
             Swal.fire({
               title: response?.message,

@@ -13,8 +13,11 @@ export const useTaskStore = defineStore("taskStore", {
       if (!response.status) {
         this.tasks = [];
       }
-      this.tasks = response?.data;
+      this.tasks = response?.data?.data;
       return response;
+    },
+    resetStore() {
+      this.tasks = [];
     },
   },
 });

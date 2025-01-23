@@ -27,14 +27,9 @@ export default {
   async created() {
     this.menuItems.menuItems = [
       {
-        title: "Anasayfa",
-        icon: "mdi-cog",
-        route: "/",
-      },
-      {
         title: "Görevler",
         icon: "mdi-cog",
-        route: "",
+        route: "/",
         child: [
           {
             title: "Görevleri Listele",

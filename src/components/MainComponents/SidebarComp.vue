@@ -5,48 +5,48 @@
         <v-img height="5vmin" :src="logoSrc"></v-img>
       </v-list-item>
       <v-divider class="my-2"></v-divider>
-      <div v-for="item in menuItems" :key="item.title">
-        <v-list-item v-if="!item.child" :href="item.route">
+      <div v-for="(item, index) in menuItems" :key="index">
+        <v-list-item v-if="!item?.child" :href="item?.route">
           <template v-slot:prepend>
-            <v-icon :icon="item.icon"></v-icon>
+            <v-icon :icon="item?.icon"></v-icon>
           </template>
           <v-list-item-title
             style="
               word-wrap: break-word !important;
               white-space: unset !important;
             "
-            >{{ item.title }}</v-list-item-title
+            >{{ item?.title }}</v-list-item-title
           >
         </v-list-item>
-        <v-list-group v-if="item.child" :value="item.title">
+        <v-list-group v-if="item?.child" :value="item?.title">
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props">
               <template v-slot:prepend>
-                <v-icon :icon="item.icon"></v-icon>
+                <v-icon :icon="item?.icon"></v-icon>
               </template>
               <v-list-item-title
                 style="
                   word-wrap: break-word !important;
                   white-space: unset !important;
                 "
-                >{{ item.title }}</v-list-item-title
+                >{{ item?.title }}</v-list-item-title
               >
             </v-list-item>
           </template>
           <v-list-item
-            v-for="child in item.child"
-            :key="child.title"
-            :href="child.route"
+            v-for="(child, index) in item?.child"
+            :key="index"
+            :href="child?.route"
           >
             <template v-slot:prepend>
-              <v-icon :icon="child.icon"></v-icon>
+              <v-icon :icon="child?.icon"></v-icon>
             </template>
             <v-list-item-title
               style="
                 word-wrap: break-word !important;
                 white-space: unset !important;
               "
-              >{{ child.title }}</v-list-item-title
+              >{{ child?.title }}</v-list-item-title
             >
           </v-list-item>
         </v-list-group>

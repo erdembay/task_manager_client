@@ -34,7 +34,7 @@ export default {
   },
   created() {
     if (this.isAuthenticated) {
-      this.$router.push("/create_process");
+      this.$router.push("/");
     }
   },
 };

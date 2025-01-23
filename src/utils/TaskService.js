@@ -2,13 +2,12 @@ import { nodeApiAxiosTaff } from "./appAxios";
 import { tokenFunc } from "./tokenService";
 export const listService = async (params) => {
   try {
-    const { data, status, statusText } = await nodeApiAxiosTaff.get(
-      `/auth/login`,
-      {
-        params,
+    const { data, status, statusText } = await nodeApiAxiosTaff.get(`/tasks`, {
+      params,
+      headers: {
         Authorization: await tokenFunc(),
-      }
-    );
+      },
+    });
     if (!data)
       return {
         status: false,
