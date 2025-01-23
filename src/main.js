@@ -1,6 +1,5 @@
 import { createApp } from "vue";
 import router from "./router";
-// import { ApmVuePlugin } from '@elastic/apm-rum-vue'
 import App from "./App.vue";
 import "vuetify/styles";
 import { createVuetify } from "vuetify";
