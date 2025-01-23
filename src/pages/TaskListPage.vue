@@ -123,6 +123,23 @@
               </template>
             </v-data-table-server>
           </v-card-item>
+          <VCardActions>
+            <VRow justify="end">
+              <VCol cols="12">
+                <VBtn
+                  href="/task_add"
+                  color="success"
+                  size="small"
+                  block
+                  variant="flat"
+                  style="text-transform: unset"
+                >
+                  <VIcon class="mr-2">mdi-plus</VIcon>
+                  Görev Ekle</VBtn
+                >
+              </VCol>
+            </VRow>
+          </VCardActions>
         </v-card>
       </v-col>
     </v-row>

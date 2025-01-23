@@ -12,6 +12,11 @@ const routes = [
     component: () => import("@/pages/TaskListPage"),
   },
   {
+    name: "TaskAddPage",
+    path: "/task_add",
+    component: () => import("@/pages/TaskAddPage"),
+  },
+  {
     name: "LoginPage",
     path: "/login",
     component: () => import("@/pages/LoginPage"),
