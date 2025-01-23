@@ -85,7 +85,7 @@
               </template>
               <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.endDate="{ item }">
-                {{ time(item.endDate) }}
+                {{ date(item.endDate) }}
               </template>
               <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.updatedAt="{ item }">
@@ -128,10 +128,20 @@
                   color="primary"
                   size="xsmall"
                   variant="flat"
-                  class="pa-1"
+                  class="pa-1 mr-2"
                   style="text-transform: unset"
                 >
                   <VIcon>mdi-pencil</VIcon>
+                </VBtn>
+                <VBtn
+                  @click="deleteItem(item.id)"
+                  color="error"
+                  size="xsmall"
+                  variant="flat"
+                  class="pa-1"
+                  style="text-transform: unset"
+                >
+                  <VIcon>mdi-delete</VIcon>
                 </VBtn>
               </template>
             </v-data-table-server>
@@ -158,47 +168,76 @@
     </v-row>
   </BaseLayoutComp>
 </template>
+
 <script>
-import PageTitleComp from "../components/MainComponents/PageTitleComp.vue";
-import { mapState, mapActions } from "pinia";
+import { ref, computed, onMounted } from "vue";
 import { useTaskStore } from "@/stores/TaskStore";
 import Helpers from "@/utils/helpers";
 import Swal from "sweetalert2";
+import PageTitleComp from "../components/MainComponents/PageTitleComp.vue";
+
 export default {
   components: {
     PageTitleComp,
   },
-  computed: {
-    ...mapState(useTaskStore, ["getTasks"]),
-  },
-  methods: {
-    ...mapActions(useTaskStore, ["listAction", "resetStore"]),
-    date(time) {
-      return Helpers.date(time);
-    },
-    time(time) {
-      return Helpers.time(time);
-    },
-    filterMethod() {
-      this.loadItems({
+  setup() {
+    const taskStore = useTaskStore();
+    const title = ref("Görev Listesi");
+    const headers = ref([
+      { key: "id", title: "ID" },
+      { key: "title", title: "Başlık" },
+      { key: "description", title: "Açıklama" },
+      { key: "status", title: "Durum" },
+      { key: "priority.name", title: "Öncelik" },
+      { key: "user.username", title: "Kullanıcı", sortable: false },
+      { key: "endDate", title: "DeadLine" },
+      { key: "updatedAt", title: "Son Güncelleme Tarihi" },
+      { key: "actions", title: "İşlemler", sortable: false },
+    ]);
+    const itemsPerPage = ref(10);
+    const serverItems = ref([]);
+    const sortBy = ref([]);
+    const loading = ref(true);
+    const totalItems = ref(0);
+    const priorityId = ref(0);
+    const status = ref(2);
+    const endDate = ref(null);
+    const getTasks = computed(() => taskStore.getTasks);
+    const date = (time) => Helpers.date(time);
+    const time = (time) => Helpers.time(time);
+    const deleteItem = async (id) => {
+      const response = await taskStore.deleteAction(id);
+      if (response?.status) {
+        Swal.fire("Başarılı!", "Silme işlemi başarılı!", "success");
+        await loadItems({
+          page: 1,
+          itemsPerPage: itemsPerPage.value,
+          sortBy: sortBy.value,
+        });
+      } else {
+        Swal.fire("Hata!", "Silme işlemi başarısız!", "error");
+      }
+    };
+    const filterMethod = () => {
+      loadItems({
         page: 1,
-        itemsPerPage: this.itemsPerPage,
-        sortBy: this.sortBy,
+        itemsPerPage: itemsPerPage.value,
+        sortBy: sortBy.value,
       });
-    },
-    resetFilter() {
-      this.priorityId = 0;
-      this.status = 2;
-      this.endDate = null;
-      this.loadItems({
+    };
+    const resetFilter = () => {
+      priorityId.value = 0;
+      status.value = 2;
+      endDate.value = null;
+      loadItems({
         page: 1,
-        itemsPerPage: this.itemsPerPage,
-        sortBy: this.sortBy,
+        itemsPerPage: itemsPerPage.value,
+        sortBy: sortBy.value,
       });
-    },
-    async loadItems({ page, itemsPerPage, sortBy }) {
-      itemsPerPage === -1 ? (itemsPerPage = this.totalItems) : itemsPerPage;
-      this.loading = true;
+    };
+    const loadItems = async ({ page, itemsPerPage, sortBy }) => {
+      itemsPerPage === -1 ? (itemsPerPage = totalItems.value) : itemsPerPage;
+      loading.value = true;
       if (sortBy.length > 0) {
         if (sortBy[0]?.key === "priority.name") sortBy[0].key = "priorityId";
       }
@@ -208,82 +247,48 @@ export default {
         orderBy: sortBy[0]?.key,
         sortOrder: sortBy[0]?.order,
       };
-      if (this.priorityId !== 0) params.priority = this.priorityId;
-      if (this.status !== 2) params.status = this.status;
-      if (this.endDate) params.endDate = this.endDate;
-      await this.listAction(params).then((response) => {
-        if (!response?.status)
-          Swal.fire(
-            "Listelemede hata oluşmuştur!",
-            "Sayfayı Yenileyiniz...",
-            "error"
-          );
-        this.serverItems = this.getTasks?.data;
-        this.totalItems = this.getTasks?.totalItems;
-        this.loading = false;
-        if (sortBy.length > 0) {
-          if (sortBy[0]?.key === "priorityId") sortBy[0].key = "priority.name";
-        }
+      if (priorityId.value !== 0) params.priority = priorityId.value;
+      if (status.value !== 2) params.status = status.value;
+      if (endDate.value) params.endDate = endDate.value;
+      const response = await taskStore.listAction(params);
+      if (!response?.status) {
+        Swal.fire(
+          "Listelemede hata oluşmuştur!",
+          "Sayfayı Yenileyiniz...",
+          "error"
+        );
+      }
+      serverItems.value = getTasks.value?.data;
+      totalItems.value = getTasks.value?.totalItems;
+      loading.value = false;
+      if (sortBy.length > 0) {
+        if (sortBy[0]?.key === "priorityId") sortBy[0].key = "priority.name";
+      }
+    };
+    onMounted(async () => {
+      await loadItems({
+        page: 1,
+        itemsPerPage: itemsPerPage.value,
+        sortBy: sortBy.value,
       });
-    },
-  },
-  async created() {
-    await this.listAction();
-  },
-  beforeUnmount() {
-    this.resetStore;
-  },
-  data() {
+    });
     return {
-      title: "Görev Listesi",
-      headers: [
-        {
-          key: "id",
-          title: "ID",
-        },
-        {
-          key: "title",
-          title: "Başlık",
-        },
-        {
-          key: "description",
-          title: "Açıklama",
-        },
-        {
-          key: "status",
-          title: "Durum",
-        },
-        {
-          key: "priority.name",
-          title: "Öncelik",
-        },
-        {
-          key: "user.username",
-          title: "Kullanıcı",
-          sortable: false,
-        },
-        {
-          key: "endDate",
-          title: "DeadLine",
-        },
-        {
-          key: "updatedAt",
-          title: "Son Güncelleme Tarihi",
-        },
-        {
-          key: "actions",
-          title: "İşlemler",
-          sortable: false,
-        },
-      ],
-      itemsPerPage: 10,
-      serverItems: [],
-      sortBy: [],
-      loading: true,
-      totalItems: 0,
-      priorityId: 0,
-      status: 2,
-      endDate: null,
+      title,
+      headers,
+      itemsPerPage,
+      serverItems,
+      sortBy,
+      loading,
+      totalItems,
+      priorityId,
+      status,
+      endDate,
+      date,
+      time,
+      filterMethod,
+      resetFilter,
+      loadItems,
+      deleteItem,
     };
   },
 };

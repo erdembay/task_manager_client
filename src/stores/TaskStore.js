@@ -4,6 +4,7 @@ import {
   createService,
   updateService,
   getByIdService,
+  deleteService,
 } from "../utils/TaskService";
 export const useTaskStore = defineStore("taskStore", {
   state: () => ({
@@ -38,6 +39,10 @@ export const useTaskStore = defineStore("taskStore", {
       } else {
         this.taskInfo = {};
       }
+      return response;
+    },
+    async deleteAction(id) {
+      const response = await deleteService(id);
       return response;
     },
     resetStore() {
