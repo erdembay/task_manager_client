@@ -124,6 +124,16 @@
               <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.actions="{ item }">
                 <VBtn
+                  :to="'/task_detail?id=' + item?.id"
+                  color="info"
+                  size="xsmall"
+                  variant="flat"
+                  class="pa-1 mr-2"
+                  style="text-transform: unset"
+                >
+                  <VIcon>mdi-eye</VIcon>
+                </VBtn>
+                <VBtn
                   :to="'/task_edit?id=' + item?.id"
                   color="primary"
                   size="xsmall"
@@ -168,14 +178,12 @@
     </v-row>
   </BaseLayoutComp>
 </template>
-
 <script>
 import { ref, computed, onMounted } from "vue";
 import { useTaskStore } from "@/stores/TaskStore";
 import Helpers from "@/utils/helpers";
 import Swal from "sweetalert2";
 import PageTitleComp from "../components/MainComponents/PageTitleComp.vue";
-
 export default {
   components: {
     PageTitleComp,
