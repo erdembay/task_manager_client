@@ -1,125 +1,108 @@
 <template>
   <BaseLayoutComp>
     <PageTitleComp :title="title" />
-    <v-row>
-      <v-col>
+    <v-row justify="center">
+      <v-col cols="11" md="6">
         <v-card flat>
-          <template #text>
-            <VRow justify="end">
-              <VCol cols="12" md="3" lg="2">
-                <VSelect
-                  v-model="priorityId"
-                  :items="[
-                    { text: 'Tümü', value: 0 },
-                    { text: 'Düşük', value: 1 },
-                    { text: 'Orta', value: 2 },
-                    { text: 'Yüksek', value: 3 },
-                  ]"
-                  label="Öncelik Durumu"
-                  variant="outlined"
-                  item-title="text"
-                  item-value="value"
-                  dense
-                >
-                </VSelect>
-              </VCol>
-              <VCol cols="12" md="3" lg="2">
-                <VSelect
-                  v-model="status"
-                  :items="[
-                    { text: 'Tümü', value: 2 },
-                    { text: 'Tamamlandı', value: 1 },
-                    { text: 'Tamamlanmadı', value: 0 },
-                  ]"
-                  label="Durum"
-                  variant="outlined"
-                  item-title="text"
-                  item-value="value"
-                  dense
-                >
-                </VSelect>
-              </VCol>
-              <!-- Tarih Seçimi - modal input-->
-              <VCol cols="12" md="3" lg="2">
-                <VTextField
-                  v-model="endDate"
-                  label="Tarih"
-                  type="date"
-                  variant="outlined"
-                  dense
-                ></VTextField>
-              </VCol>
-              <VCol cols="12" md="3" lg="1">
-                <VRow justify="end" style="text-align: end">
-                  <VCol cols="12">
-                    <VBtn @click="filterMethod" color="primary" dark>
-                      Sorgula
-                    </VBtn>
-                  </VCol>
-                  <VCol cols="12">
-                    <VBtn @click="resetFilter" color="error" dark>
-                      Sıfırla
-                    </VBtn>
-                  </VCol>
-                </VRow>
-              </VCol>
-            </VRow>
-          </template>
           <v-card-item>
-            <v-data-table-server
-              v-model:items-per-page="itemsPerPage"
-              :headers="headers"
-              :items-length="totalItems"
-              :items="serverItems"
-              :loading="loading"
-              loading-text="Yükleniyor... Lütfen Bekleyiniz."
-              item-value="name"
-              @update:options="loadItems"
-            >
-              <template v-slot:no-data>
-                <v-alert :value="true" color="error" icon="mdi-alert">
-                  Kayıt Bulunamadı!
-                </v-alert>
-              </template>
-              <!-- eslint-disable-next-line vue/valid-v-slot -->
-              <template #item.endDate="{ item }">
-                {{ time(item.endDate) }}
-              </template>
-              <!-- eslint-disable-next-line vue/valid-v-slot -->
-              <template #item.updatedAt="{ item }">
-                {{ time(item.updatedAt) }}
-              </template>
-              <!-- eslint-disable-next-line vue/valid-v-slot -->
-              <template #item.status="{ item }">
-                <v-chip :color="item.status == 1 ? 'success' : 'error'" dark>{{
-                  item.status == 1 ? "Tamamlandı" : "Tamamlanmadı"
-                }}</v-chip>
-              </template>
-              <!-- eslint-disable-next-line vue/valid-v-slot -->
-              <template #item.priority.name="{ item }">
-                <v-chip
-                  :color="
-                    item.priority.name === 'low'
-                      ? 'success'
-                      : item.priority.name === 'medium'
-                      ? 'warning'
-                      : 'error'
-                  "
-                  dark
-                  >{{
-                    item.priority.name === "low"
-                      ? "Düşük"
-                      : item.priority.name === "medium"
-                      ? "Orta"
-                      : "Yüksek"
-                  }}</v-chip
-                >
-              </template>
-              <!-- eslint-disable-next-line vue/valid-v-slot -->
-              <template #item.user.username="{ item }">
-                {{ item.user.username }}
-              </template>
-            </v-data-table-server>
+            <v-form ref="form" class="pa-4">
+              <v-text-field
+                v-model="inputTitle"
+                label="Başlık *"
+                placeholder="Başlık"
+                prepend-icon="mdi-format-title"
+                variant="outlined"
+                dense
+                :rules="titleRules"
+                required
+                class="mb-2"
+              ></v-text-field>
+              <v-textarea
+                v-model="inputDescription"
+                label="Açıklama *"
+                placeholder="Açıklama"
+                prepend-icon="mdi-format-align-left"
+                variant="outlined"
+                :rules="descriptionRules"
+                dense
+                required
+                class="mb-2"
+              ></v-textarea>
+              <v-select
+                prepend-icon="mdi-format-title"
+                v-model="inputPriorityId"
+                :items="[
+                  { text: 'Düşük', value: 1 },
+                  { text: 'Orta', value: 2 },
+                  { text: 'Yüksek', value: 3 },
+                ]"
+                label="Öncelik *"
+                variant="outlined"
+                item-title="text"
+                :rules="priorityIdRules"
+                item-value="value"
+                dense
+                required
+                class="mb-2"
+              ></v-select>
+              <VTextField
+                v-model="inputEndDate"
+                label="Bitiş Tarihi *"
+                type="date"
+                variant="outlined"
+                :rules="endDateRules"
+                dense
+                required
+                prepend-icon="mdi-calendar"
+                class="mb-2"
+              ></VTextField>
+              <v-file-input
+                v-model="attachments"
+                :show-size="1000"
+                color="amber-darken-2"
+                label="Ek dosya seçiniz (Opsiyonel)"
+                placeholder="Dosya seçiniz"
+                prepend-icon="mdi-paperclip"
+                variant="outlined"
+                counter
+                multiple
+              >
+                <template v-slot:selection="{ fileNames }">
+                  <template
+                    v-for="(fileName, index) in fileNames"
+                    :key="fileName"
+                  >
+                    <v-chip
+                      v-if="index < 2"
+                      class="me-2"
+                      color="info"
+                      size="small"
+                      label
+                    >
+                      {{ fileName }}
+                    </v-chip>
+                    <span
+                      v-else-if="index === 2"
+                      class="text-overline text-grey-darken-3 mx-2"
+                    >
+                      +{{ attachments.length - 2 }} Dosyalar
+                    </span>
+                  </template>
+                </template>
+              </v-file-input>
+              <v-btn
+                @click="taskAddMethod"
+                color="primary"
+                size="small"
+                :loading="loading"
+                :disabled="loading"
+                style="text-transform: none"
+                block
+              >
+                <VIcon class="mr-2">mdi-plus</VIcon>
+                Görev Ekle
+              </v-btn>
+            </v-form>
           </v-card-item>
         </v-card>
       </v-col>
@@ -127,109 +110,80 @@
   </BaseLayoutComp>
 </template>
 <script>
-import PageTitleComp from "../components/MainComponents/PageTitleComp.vue";
-import { mapState, mapActions } from "pinia";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useTaskStore } from "@/stores/TaskStore";
-import Helpers from "@/utils/helpers";
 import Swal from "sweetalert2";
+import PageTitleComp from "../components/MainComponents/PageTitleComp.vue";
 export default {
   components: {
     PageTitleComp,
   },
-  computed: {
-    ...mapState(useTaskStore, ["getTasks"]),
-  },
-  methods: {
-    ...mapActions(useTaskStore, ["listAction", "resetStore"]),
-    date(time) {
-      return Helpers.date(time);
-    },
-    time(time) {
-      return Helpers.time(time);
-    },
-    async loadItems({ page, itemsPerPage, sortBy }) {
-      itemsPerPage === -1 ? (itemsPerPage = this.totalItems) : itemsPerPage;
-      this.loading = true;
-      if (sortBy.length > 0) {
-        if (sortBy[0]?.key === "priority.name") sortBy[0].key = "priorityId";
-      }
-      const params = {
-        page,
-        limit: itemsPerPage,
-        orderBy: sortBy[0]?.key,
-        sortOrder: sortBy[0]?.order,
-      };
-      if (this.priorityId !== 0) params.priority = this.priorityId;
-      if (this.status !== 2) params.status = this.status;
-      if (this.endDate) params.endDate = this.endDate;
-      await this.listAction(params).then((response) => {
-        if (!response?.status)
-          Swal.fire(
-            "Listelemede hata oluşmuştur!",
-            "Sayfayı Yenileyiniz...",
-            "error"
-          );
-        this.serverItems = this.getTasks?.data;
-        this.totalItems = this.getTasks?.totalItems;
-        this.loading = false;
-        if (sortBy.length > 0) {
-          if (sortBy[0]?.key === "priorityId") sortBy[0].key = "priority.name";
+  setup() {
+    const router = useRouter();
+    const taskStore = useTaskStore();
+    const form = ref(null);
+    const loading = ref(false);
+    const title = ref("Görev Ekle");
+    const inputTitle = ref(null);
+    const inputDescription = ref(null);
+    const inputPriorityId = ref(1);
+    const inputEndDate = ref(null);
+    const attachments = ref(null);
+    const titleRules = [(v) => !!v || "Başlık boş bırakılamaz"];
+    const descriptionRules = [(v) => !!v || "Açıklama boş bırakılamaz"];
+    const priorityIdRules = [(v) => !!v || "Öncelik boş bırakılamaz"];
+    const endDateRules = [(v) => !!v || "Bitiş tarihi boş bırakılamaz"];
+    const taskAddMethod = async () => {
+      loading.value = true;
+      const valid = await form.value.validate();
+      if (!valid.valid) {
+        loading.value = false;
+        return;
+      } else {
+        const formData = new FormData();
+        formData.append("title", inputTitle.value);
+        formData.append("description", inputDescription.value);
+        formData.append("priorityId", inputPriorityId.value);
+        formData.append("endDate", inputEndDate.value);
+        if (attachments.value) {
+          attachments.value.map((item) => {
+            formData.append("attachment", item);
+          });
         }
-      });
-    },
-  },
-  async created() {
-    await this.listAction();
-  },
-  beforeUnmount() {
-    this.resetStore;
-  },
-  data() {
+        const responseAdd = await taskStore.createAction(formData);
+        if (responseAdd?.status) {
+          Swal.fire({
+            icon: "success",
+            title: responseAdd?.data?.message || "Görev Başarıyla Eklendi!",
+            width: "auto",
+          });
+          router.replace({ name: "TaskListPage" });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title:
+              responseAdd?.data?.message || "Görev Eklenirken Hata Oluştu!",
+            width: "auto",
+          });
+        }
+        loading.value = false;
+      }
+    };
     return {
-      title: "Görev Listesi",
-      headers: [
-        {
-          key: "id",
-          title: "ID",
-        },
-        {
-          key: "title",
-          title: "Başlık",
-        },
-        {
-          key: "description",
-          title: "Açıklama",
-        },
-        {
-          key: "status",
-          title: "Durum",
-        },
-        {
-          key: "priority.name",
-          title: "Öncelik",
-        },
-        {
-          key: "user.username",
-          title: "Kullanıcı",
-          sortable: false,
-        },
-        {
-          key: "endDate",
-          title: "DeadLine",
-        },
-        {
-          key: "updatedAt",
-          title: "Son Güncelleme Tarihi",
-        },
-      ],
-      itemsPerPage: 10,
-      serverItems: [],
-      sortBy: [],
-      loading: true,
-      totalItems: 0,
-      priorityId: 0,
-      status: 2,
-      endDate: null,
+      form,
+      loading,
+      inputTitle,
+      inputDescription,
+      inputPriorityId,
+      inputEndDate,
+      attachments,
+      titleRules,
+      descriptionRules,
+      priorityIdRules,
+      endDateRules,
+      taskAddMethod,
+      title,
     };
   },
 };

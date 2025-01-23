@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { listService } from "../utils/TaskService";
+import { listService, createService } from "../utils/TaskService";
 export const useTaskStore = defineStore("taskStore", {
   state: () => ({
     tasks: [],
@@ -14,6 +14,10 @@ export const useTaskStore = defineStore("taskStore", {
         this.tasks = [];
       }
       this.tasks = response?.data?.data;
+      return response;
+    },
+    async createAction(body) {
+      const response = await createService(body);
       return response;
     },
     resetStore() {
