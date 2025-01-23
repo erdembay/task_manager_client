@@ -3,13 +3,16 @@ import {
   listService,
   createService,
   updateService,
+  getByIdService,
 } from "../utils/TaskService";
 export const useTaskStore = defineStore("taskStore", {
   state: () => ({
     tasks: [],
+    taskInfo: {},
   }),
   getters: {
     getTasks: (state) => state.tasks,
+    getTaskInfo: (state) => state.taskInfo,
   },
   actions: {
     async listAction(params) {
@@ -26,6 +29,15 @@ export const useTaskStore = defineStore("taskStore", {
     },
     async updateAction(id, body) {
       const response = await updateService(id, body);
+      return response;
+    },
+    async getByIdAction(id) {
+      const response = await getByIdService(id);
+      if (response?.status) {
+        this.taskInfo = response?.data?.data;
+      } else {
+        this.taskInfo = {};
+      }
       return response;
     },
     resetStore() {

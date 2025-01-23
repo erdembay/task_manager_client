@@ -121,6 +121,19 @@
               <template #item.user.username="{ item }">
                 {{ item.user.username }}
               </template>
+              <!-- eslint-disable-next-line vue/valid-v-slot -->
+              <template #item.actions="{ item }">
+                <VBtn
+                  :to="'/task_edit?id=' + item?.id"
+                  color="primary"
+                  size="xsmall"
+                  variant="flat"
+                  class="pa-1"
+                  style="text-transform: unset"
+                >
+                  <VIcon>mdi-pencil</VIcon>
+                </VBtn>
+              </template>
             </v-data-table-server>
           </v-card-item>
           <VCardActions>
@@ -256,6 +269,11 @@ export default {
         {
           key: "updatedAt",
           title: "Son Güncelleme Tarihi",
+        },
+        {
+          key: "actions",
+          title: "İşlemler",
+          sortable: false,
         },
       ],
       itemsPerPage: 10,

@@ -56,6 +56,13 @@
                 prepend-icon="mdi-calendar"
                 class="mb-2"
               ></VTextField>
+              <v-switch
+                prepend-icon="mdi-check"
+                v-model="inputStatus"
+                :label="inputStatus ? 'Tamamlandı' : 'Tamamlanmadı'"
+                color="success"
+                class="mb-2"
+              ></v-switch>
               <v-file-input
                 v-model="attachments"
                 :show-size="1000"
@@ -90,8 +97,38 @@
                   </template>
                 </template>
               </v-file-input>
+              <v-divider class="my-4"></v-divider>
+              <v-row>
+                <v-col
+                  v-for="(item, index) in resAttachments"
+                  :key="index"
+                  cols="3"
+                >
+                  {{ item.filename }}
+                  <div v-if="item?.type.split('/')[0] == 'application'">
+                    belge
+                  </div>
+                  <div v-else-if="item?.type.split('/')[0] == 'image'">
+                    <v-img
+                      :src="item?.url"
+                      :alt="item?.filename"
+                      style="width: 100%; height: 100px"
+                    />
+                  </div>
+                  <!-- silme butonu -->
+                  <v-btn
+                    @click="attachmentDelete(item.id)"
+                    color="error"
+                    size="x-small"
+                    class="pa-1 ma-2"
+                  >
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </v-col>
+              </v-row>
+              <v-divider class="my-4"></v-divider>
               <v-btn
-                @click="taskAddMethod"
+                @click="taskEditMethod"
                 color="primary"
                 size="small"
                 :loading="loading"
@@ -99,8 +136,8 @@
                 style="text-transform: none"
                 block
               >
-                <VIcon class="mr-2">mdi-plus</VIcon>
-                Görev Ekle
+                <VIcon class="mr-2">mdi-pencil</VIcon>
+                Görev Düzenle
               </v-btn>
             </v-form>
           </v-card-item>
@@ -110,7 +147,7 @@
   </BaseLayoutComp>
 </template>
 <script>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useTaskStore } from "@/stores/TaskStore";
 import Swal from "sweetalert2";
@@ -124,17 +161,44 @@ export default {
     const taskStore = useTaskStore(); // Task Storea Erişim
     const form = ref(null); // Form Ref
     const loading = ref(false);
-    const title = ref("Görev Ekle");
+    const title = ref("Görev Düzenle");
     const inputTitle = ref(null);
     const inputDescription = ref(null);
     const inputPriorityId = ref(1);
     const inputEndDate = ref(null);
+    const inputStatus = ref(0);
+    const resAttachments = ref([]);
     const attachments = ref(null);
     const titleRules = [(v) => !!v || "Başlık boş bırakılamaz"];
     const descriptionRules = [(v) => !!v || "Açıklama boş bırakılamaz"];
     const priorityIdRules = [(v) => !!v || "Öncelik boş bırakılamaz"];
     const endDateRules = [(v) => !!v || "Bitiş tarihi boş bırakılamaz"];
-    const taskAddMethod = async () => {
+    const taskId = router.currentRoute.value.query?.id;
+    onMounted(async () => {
+      const response = await taskStore.getByIdAction(taskId);
+      if (response?.status) {
+        const resData = taskStore.getTaskInfo;
+        inputTitle.value = resData?.title;
+        inputDescription.value = resData?.description;
+        inputPriorityId.value = resData?.priorityId;
+        inputEndDate.value = new Date(resData?.endDate)
+          .toISOString()
+          .substr(0, 10);
+        inputStatus.value = resData?.status;
+        resAttachments.value = resData?.attachments;
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: response?.data?.message || "Görev Bilgileri Getirilemedi!",
+          width: "auto",
+        });
+        router.replace({ name: "TaskListPage" });
+      }
+    });
+    const attachmentDelete = async (id) => {
+      console.log(id);
+    };
+    const taskEditMethod = async () => {
       loading.value = true;
       const valid = await form.value.validate();
       if (!valid.valid) {
@@ -146,24 +210,24 @@ export default {
         formData.append("description", inputDescription.value);
         formData.append("priorityId", inputPriorityId.value);
         formData.append("endDate", inputEndDate.value);
+        formData.append("status", inputStatus.value);
         if (attachments.value) {
           attachments.value.map((item) => {
             formData.append("attachment", item);
           });
         }
-        const responseAdd = await taskStore.createAction(formData);
+        const responseAdd = await taskStore.updateAction(taskId, formData);
         if (responseAdd?.status) {
           Swal.fire({
             icon: "success",
-            title: responseAdd?.data?.message || "Görev Başarıyla Eklendi!",
+            title: responseAdd?.data?.message || "Görev Başarıyla Düzenlendi!",
             width: "auto",
           });
           router.replace({ name: "TaskListPage" });
         } else {
           Swal.fire({
             icon: "error",
-            title:
-              responseAdd?.data?.message || "Görev Eklenirken Hata Oluştu!",
+            title: responseAdd?.message || "Görev Düzenlenirken Hata Oluştu!",
             width: "auto",
           });
         }
@@ -177,13 +241,16 @@ export default {
       inputDescription,
       inputPriorityId,
       inputEndDate,
+      inputStatus,
       attachments,
       titleRules,
       descriptionRules,
       priorityIdRules,
       endDateRules,
-      taskAddMethod,
+      taskEditMethod,
       title,
+      resAttachments,
+      attachmentDelete,
     };
   },
 };
