@@ -104,13 +104,21 @@
                   :key="index"
                   cols="3"
                 >
-                  {{ item.filename }}
                   <div v-if="item?.type.split('/')[0] == 'application'">
-                    belge
+                    <!-- indirilebilir olması lazım -->
+                    {{ item?.filename }}
+                    <v-btn
+                      @click="downloadAttachment(attachmentUrl + item?.url)"
+                      color="primary"
+                      size="x-small"
+                      class="pa-1 ma-2"
+                    >
+                      <v-icon>mdi-download</v-icon>
+                    </v-btn>
                   </div>
                   <div v-else-if="item?.type.split('/')[0] == 'image'">
                     <v-img
-                      :src="item?.url"
+                      :src="attachmentUrl + item?.url"
                       :alt="item?.filename"
                       style="width: 100%; height: 100px"
                     />
@@ -150,6 +158,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useTaskStore } from "@/stores/TaskStore";
+import { useAttachmentStore } from "@/stores/AttachmentStore";
 import Swal from "sweetalert2";
 import PageTitleComp from "../components/MainComponents/PageTitleComp.vue";
 export default {
@@ -159,6 +168,7 @@ export default {
   setup() {
     const router = useRouter(); // Vue Router Erişim
     const taskStore = useTaskStore(); // Task Storea Erişim
+    const attachmentStore = useAttachmentStore(); // Attachment Storea Erişim
     const form = ref(null); // Form Ref
     const loading = ref(false);
     const title = ref("Görev Düzenle");
@@ -169,13 +179,19 @@ export default {
     const inputStatus = ref(0);
     const resAttachments = ref([]);
     const attachments = ref(null);
+    const attachmentUrl = ref(
+      process.env.VUE_APP_API_BASE_URL +
+        ":" +
+        process.env.VUE_APP_API_PORT +
+        "/"
+    );
     const titleRules = [(v) => !!v || "Başlık boş bırakılamaz"];
     const descriptionRules = [(v) => !!v || "Açıklama boş bırakılamaz"];
     const priorityIdRules = [(v) => !!v || "Öncelik boş bırakılamaz"];
     const endDateRules = [(v) => !!v || "Bitiş tarihi boş bırakılamaz"];
     const taskId = router.currentRoute.value.query?.id;
-    onMounted(async () => {
-      const response = await taskStore.getByIdAction(taskId);
+    const getTaskInfo = async (id) => {
+      const response = await taskStore.getByIdAction(id);
       if (response?.status) {
         const resData = taskStore.getTaskInfo;
         inputTitle.value = resData?.title;
@@ -194,9 +210,29 @@ export default {
         });
         router.replace({ name: "TaskListPage" });
       }
+    };
+    onMounted(async () => {
+      await getTaskInfo(taskId);
     });
     const attachmentDelete = async (id) => {
-      console.log(id);
+      const response = await attachmentStore.deleteAction(id);
+      if (response?.status) {
+        Swal.fire({
+          icon: "success",
+          title: response?.data?.message || "Dosya Başarıyla Silindi!",
+          width: "auto",
+        });
+        await getTaskInfo(taskId);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: response?.data?.message || "Dosya Silinirken Hata Oluştu!",
+          width: "auto",
+        });
+      }
+    };
+    const downloadAttachment = async (url) => {
+      window.open(url, "_blank");
     };
     const taskEditMethod = async () => {
       loading.value = true;
@@ -251,6 +287,8 @@ export default {
       title,
       resAttachments,
       attachmentDelete,
+      downloadAttachment,
+      attachmentUrl,
     };
   },
 };
