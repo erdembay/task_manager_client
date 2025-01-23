@@ -120,9 +120,9 @@ export default {
     PageTitleComp,
   },
   setup() {
-    const router = useRouter();
-    const taskStore = useTaskStore();
-    const form = ref(null);
+    const router = useRouter(); // Vue Router Erişim
+    const taskStore = useTaskStore(); // Task Storea Erişim
+    const form = ref(null); // Form Ref
     const loading = ref(false);
     const title = ref("Görev Ekle");
     const inputTitle = ref(null);
