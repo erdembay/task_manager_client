@@ -17,9 +17,14 @@ const routes = [
     component: () => import("@/pages/LoginPage"),
   },
   {
+    name: "RegisterPage",
+    path: "/register",
+    component: () => import("@/pages/RegisterPage"),
+  },
+  {
     name: "ErrorPage",
     path: "/forbidden",
-    component: () => import("@/pages/ErrorPage.vue"),
+    component: () => import("@/pages/ErrorPage"),
   },
   {
     name: "404Page",
@@ -34,12 +39,11 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const userStore = useUserStore();
   const _isAuth = userStore.isAuthenticated;
-  if (!_isAuth && to.fullPath != "/login") {
+  if (!_isAuth && to.fullPath != "/login" && to.fullPath != "/register") {
     return "login";
   } else {
-    if (to.name === "ErrorPage") return;
-    if (to.name === "LoginPage") return;
-    else if (to.name === "404Page") return;
+    if (_isAuth && to.fullPath == "/login") return "/";
+    if (_isAuth && to.fullPath == "/register") return "/";
   }
 });
 export default router;

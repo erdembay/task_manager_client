@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { loginService } from "../utils/UserService";
+import { loginService, registerService } from "../utils/UserService";
 import Cookies from "js-cookie";
 export const useUserStore = defineStore("userStore", {
   state: () => ({
@@ -44,7 +44,16 @@ export const useUserStore = defineStore("userStore", {
         this.userInfo = null;
         Cookies.remove("userInfo");
       }
-      console.log(response);
+      return response;
+    },
+    async register(form) {
+      const body = {
+        username: form?.username,
+        password: form?.password,
+        passwordRepeat: form?.passwordRepeat,
+        email: form?.email,
+      };
+      const response = await registerService(body);
       return response;
     },
     async logout() {

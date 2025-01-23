@@ -5,11 +5,9 @@
         <v-col lg="2" md="6" cols="6" align="center">
           <LogoComp></LogoComp>
         </v-col>
-      </v-row>
-      <v-row justify="center" align="center">
         <v-col lg="3" md="10" cols="10" align-self="center">
           <v-card>
-            <login-comp></login-comp>
+            <RegisterComp></RegisterComp>
           </v-card>
         </v-col>
       </v-row>
@@ -17,13 +15,13 @@
   </div>
 </template>
 <script>
-import LoginComp from "@/components/LoginPage/LoginComp";
+import RegisterComp from "@/components/RegisterPage/RegisterComp";
 import LogoComp from "@/components/LoginPage/LogoComp";
 import { mapState } from "pinia";
 import { useUserStore } from "../stores/UserStore";
 export default {
   components: {
-    LoginComp,
+    RegisterComp,
     LogoComp,
   },
   data() {
@@ -32,11 +30,7 @@ export default {
   methods: {
     ...mapState(useUserStore, ["isAuthenticated"]),
   },
-  mounted() {
-    if (this.isAuthenticated()) {
-      this.$router.push("/");
-    }
-  },
+  created() {},
 };
 </script>
 <style scoped>

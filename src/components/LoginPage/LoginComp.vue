@@ -27,11 +27,21 @@
       </v-text-field>
       <v-btn
         :loading="loading"
-        type="submit"
+        @click="submit"
+        block
+        color="success"
+        style="text-transform: unset"
+        :text="buttonText"
+        class="mb-2"
+      >
+      </v-btn
+      ><v-btn
+        @click="registerPageGo"
         block
         color="info"
-        :text="buttonText"
+        style="text-transform: unset"
       >
+        {{ registerText }}
       </v-btn>
     </v-form>
   </v-sheet>
@@ -47,6 +57,7 @@ export default {
     return {
       email: null,
       buttonText: "Giriş Yap",
+      registerText: "Kayıt Ol",
       loading: false,
       userData: {
         username: null,
@@ -68,7 +79,6 @@ export default {
             username: this.userData.username,
             password: this.userData.password,
           });
-          console.log(response);
           if (response?.status) {
             this.$router.go();
           } else {
@@ -90,6 +100,9 @@ export default {
         }
       }
       this.loading = false;
+    },
+    registerPageGo() {
+      this.$router.push("/register");
     },
     ...mapActions(useUserStore, ["login"]),
   },
