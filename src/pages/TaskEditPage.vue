@@ -102,9 +102,15 @@
                 <v-col
                   v-for="(item, index) in resAttachments"
                   :key="index"
-                  cols="3"
+                  cols="12"
+                  md="6"
+                  lg="3"
+                  style="text-align: center; height: 150px"
                 >
-                  <div v-if="item?.type.split('/')[0] == 'application'">
+                  <div
+                    v-if="item?.type.split('/')[0] == 'application'"
+                    style="height: 100px"
+                  >
                     <!-- indirilebilir olması lazım -->
                     {{ item?.filename }}
                     <v-btn
@@ -136,6 +142,7 @@
                     color="error"
                     size="x-small"
                     class="pa-1 ma-2"
+                    block
                   >
                     <v-icon>mdi-delete</v-icon>
                   </v-btn>
