@@ -123,6 +123,13 @@
                       style="width: 100%; height: 100px"
                     />
                   </div>
+                  <div v-else-if="item?.type.split('/')[0] == 'video'">
+                    <video
+                      controls
+                      style="width: 100%; height: 100px"
+                      :src="attachmentUrl + item?.url"
+                    ></video>
+                  </div>
                   <!-- silme butonu -->
                   <v-btn
                     @click="attachmentDelete(item.id)"
