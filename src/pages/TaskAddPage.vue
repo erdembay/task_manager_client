@@ -7,7 +7,6 @@
           <template #text>
             <VRow justify="end">
               <VCol cols="12" md="3" lg="2">
-                <!-- TODO: priority list servis yazıldığında dinamik olarak listelenebilir şimdilik statik -->
                 <VSelect
                   v-model="priorityId"
                   :items="[
@@ -25,7 +24,6 @@
                 </VSelect>
               </VCol>
               <VCol cols="12" md="3" lg="2">
-                <!-- ? Status durumu db de boolean olarak verildiği için bu şekilde çalışabilir -->
                 <VSelect
                   v-model="status"
                   :items="[
@@ -148,23 +146,6 @@ export default {
     },
     time(time) {
       return Helpers.time(time);
-    },
-    filterMethod() {
-      this.loadItems({
-        page: 1,
-        itemsPerPage: this.itemsPerPage,
-        sortBy: this.sortBy,
-      });
-    },
-    resetFilter() {
-      this.priorityId = 0;
-      this.status = 2;
-      this.endDate = null;
-      this.loadItems({
-        page: 1,
-        itemsPerPage: this.itemsPerPage,
-        sortBy: this.sortBy,
-      });
     },
     async loadItems({ page, itemsPerPage, sortBy }) {
       itemsPerPage === -1 ? (itemsPerPage = this.totalItems) : itemsPerPage;
