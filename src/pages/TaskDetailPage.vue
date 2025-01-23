@@ -99,23 +99,7 @@
                     :key="index"
                   >
                     <v-list-item-title
-                      v-if="attachment.type.split('/')[0] == 'application'"
-                    >
-                      {{ attachment.filename }}
-                      <v-btn
-                        size="xsmall"
-                        color="success"
-                        variant="flat"
-                        class="pa-1 mx-2"
-                        @click="
-                          downloadAttachment(attachmentUrl + attachment.url)
-                        "
-                      >
-                        <VIcon>mdi-download</VIcon>
-                      </v-btn>
-                    </v-list-item-title>
-                    <v-list-item-title
-                      v-else-if="attachment.type.split('/')[0] == 'image'"
+                      v-if="attachment.type.split('/')[0] == 'image'"
                     >
                       <v-img
                         :src="attachmentUrl + attachment.url"
@@ -130,6 +114,20 @@
                       <video width="100%" height="200px" controls class="mx-2">
                         <source :src="attachmentUrl + attachment.url" />
                       </video>
+                    </v-list-item-title>
+                    <v-list-item-title v-else>
+                      {{ attachment.filename }}
+                      <v-btn
+                        size="xsmall"
+                        color="success"
+                        variant="flat"
+                        class="pa-1 mx-2"
+                        @click="
+                          downloadAttachment(attachmentUrl + attachment.url)
+                        "
+                      >
+                        <VIcon>mdi-download</VIcon>
+                      </v-btn>
                     </v-list-item-title>
                     <VDivider class="my-3"></VDivider>
                   </v-list-item>

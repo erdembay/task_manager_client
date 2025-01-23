@@ -107,22 +107,7 @@
                   lg="3"
                   style="text-align: center; height: 150px"
                 >
-                  <div
-                    v-if="item?.type.split('/')[0] == 'application'"
-                    style="height: 100px"
-                  >
-                    <!-- indirilebilir olması lazım -->
-                    {{ item?.filename }}
-                    <v-btn
-                      @click="downloadAttachment(attachmentUrl + item?.url)"
-                      color="primary"
-                      size="x-small"
-                      class="pa-1 ma-2"
-                    >
-                      <v-icon>mdi-download</v-icon>
-                    </v-btn>
-                  </div>
-                  <div v-else-if="item?.type.split('/')[0] == 'image'">
+                  <div v-if="item?.type.split('/')[0] == 'image'">
                     <v-img
                       :src="attachmentUrl + item?.url"
                       :alt="item?.filename"
@@ -135,6 +120,18 @@
                       style="width: 100%; height: 100px"
                       :src="attachmentUrl + item?.url"
                     ></video>
+                  </div>
+                  <div v-else style="height: 100px">
+                    <!-- indirilebilir olması lazım -->
+                    {{ item?.filename }}
+                    <v-btn
+                      @click="downloadAttachment(attachmentUrl + item?.url)"
+                      color="primary"
+                      size="x-small"
+                      class="pa-1 ma-2"
+                    >
+                      <v-icon>mdi-download</v-icon>
+                    </v-btn>
                   </div>
                   <!-- silme butonu -->
                   <v-btn
