@@ -1,8 +1,10 @@
 import axios from "axios";
 import { useUserStore } from "@/stores/UserStore";
 import router from "@/router";
+const baseURL = process.env.VUE_APP_API_BASE_URL;
+const port = process.env.VUE_APP_API_PORT;
 export const nodeApiAxiosTaff = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: `${baseURL}:${port}`,
 });
 nodeApiAxiosTaff.interceptors.response.use(
   (response) => {
