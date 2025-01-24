@@ -85,11 +85,11 @@
               </template>
               <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.endDate="{ item }">
-                {{ date(item.endDate) }}
+                {{ date(item?.endDate) }}
               </template>
               <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.updatedAt="{ item }">
-                {{ time(item.updatedAt) }}
+                {{ time(item?.updatedAt) }}
               </template>
               <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.status="{ item }">
@@ -119,7 +119,7 @@
               </template>
               <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.user.username="{ item }">
-                {{ item.user.username }}
+                {{ item?.user?.username }}
               </template>
               <!-- eslint-disable-next-line vue/valid-v-slot -->
               <template #item.actions="{ item }">
@@ -144,7 +144,7 @@
                   <VIcon>mdi-pencil</VIcon>
                 </VBtn>
                 <VBtn
-                  @click="deleteItem(item.id)"
+                  @click="deleteItem(item?.id)"
                   color="error"
                   size="xsmall"
                   variant="flat"
@@ -266,8 +266,8 @@ export default {
           "error"
         );
       }
-      serverItems.value = getTasks.value?.data;
-      totalItems.value = getTasks.value?.totalItems;
+      serverItems.value = getTasks.value?.data || [];
+      totalItems.value = getTasks.value?.totalItems || 0;
       loading.value = false;
       if (sortBy.length > 0) {
         if (sortBy[0]?.key === "priorityId") sortBy[0].key = "priority.name";
