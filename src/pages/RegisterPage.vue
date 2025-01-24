@@ -17,20 +17,14 @@
 <script>
 import RegisterComp from "@/components/RegisterPage/RegisterComp";
 import LogoComp from "@/components/LoginPage/LogoComp";
-import { mapState } from "pinia";
-import { useUserStore } from "../stores/UserStore";
 export default {
   components: {
     RegisterComp,
     LogoComp,
   },
-  data() {
+  setup() {
     return {};
   },
-  methods: {
-    ...mapState(useUserStore, ["isAuthenticated"]),
-  },
-  created() {},
 };
 </script>
 <style scoped>

@@ -20,9 +20,7 @@
 </template>
 <script>
 export default {
-  components: {},
-  computed: {},
-  data() {
+  setup() {
     return {};
   },
 };

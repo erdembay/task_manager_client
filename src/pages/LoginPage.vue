@@ -17,25 +17,25 @@
   </div>
 </template>
 <script>
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useUserStore } from "../stores/UserStore";
 import LoginComp from "@/components/LoginPage/LoginComp";
 import LogoComp from "@/components/LoginPage/LogoComp";
-import { mapState } from "pinia";
-import { useUserStore } from "../stores/UserStore";
 export default {
   components: {
     LoginComp,
     LogoComp,
   },
-  data() {
+  setup() {
+    const router = useRouter();
+    const userStore = useUserStore();
+    onMounted(() => {
+      if (userStore.isAuthenticated) {
+        router.push("/");
+      }
+    });
     return {};
-  },
-  methods: {
-    ...mapState(useUserStore, ["isAuthenticated"]),
-  },
-  mounted() {
-    if (this.isAuthenticated()) {
-      this.$router.push("/");
-    }
   },
 };
 </script>
