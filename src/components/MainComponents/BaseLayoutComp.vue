@@ -12,7 +12,8 @@
   </v-main>
 </template>
 <script>
-import { mapState } from "pinia";
+import { ref, computed, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import { useUserStore } from "../../stores/UserStore";
 import SidebarComp from "./SidebarComp.vue";
 import FooterComp from "./FooterComp.vue";
@@ -21,36 +22,36 @@ export default {
     SidebarComp,
     FooterComp,
   },
-  computed: {
-    ...mapState(useUserStore, ["getUserInfo"]),
-  },
-  async created() {
-    this.menuItems.menuItems = [
-      {
-        title: "Görevler",
-        icon: "mdi-cog",
-        route: "/",
-        child: [
-          {
-            title: "Görevleri Listele",
-            icon: "mdi-cog",
-            route: "/tasks",
-          },
-        ],
-      },
-    ];
-    this.user.fullName = this.getUserInfo?.username;
-  },
-  methods: {},
-  data() {
+  setup() {
+    const route = useRoute();
+    const userStore = useUserStore();
+    const routeName = ref(route.name);
+    const user = ref({
+      username: null,
+    });
+    const menuItems = ref([]);
+    const getUserInfo = computed(() => userStore.getUserInfo);
+    onMounted(() => {
+      menuItems.value = [
+        {
+          title: "Görevler",
+          icon: "mdi-cog",
+          route: "/",
+          child: [
+            {
+              title: "Görevleri Listele",
+              icon: "mdi-cog",
+              route: "/tasks",
+            },
+          ],
+        },
+      ];
+      user.value.username = getUserInfo.value?.username;
+    });
     return {
-      routeName: this.$route.name,
-      user: {
-        username: null,
-      },
-      menuItems: {
-        menuItems: [],
-      },
+      routeName,
+      user,
+      menuItems,
     };
   },
 };

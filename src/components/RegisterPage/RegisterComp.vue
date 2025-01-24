@@ -56,8 +56,8 @@
         :text="registerText"
         class="mb-2"
       >
-      </v-btn
-      ><v-btn
+      </v-btn>
+      <v-btn
         @click="loginPageGo"
         block
         color="info"
@@ -69,61 +69,59 @@
   </v-sheet>
 </template>
 <script>
-import { mapActions } from "pinia";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useUserStore } from "../../stores/UserStore";
 import Swal from "sweetalert2";
 import { validate } from "@/middlewares/validate";
 import { registerControl } from "@/validations/Users";
 export default {
-  data() {
-    return {
+  setup() {
+    const router = useRouter();
+    const userStore = useUserStore();
+    const form = ref(null);
+    const loading = ref(false);
+    const buttonText = ref("Zaten Kayıtlı Mısınız?");
+    const registerText = ref("Kayıt Ol");
+    const userData = ref({
+      username: null,
       email: null,
-      buttonText: "Zaten Kayıtlı Mısınız?",
-      registerText: "Kayıt Ol",
-      loading: false,
-      userData: {
-        username: null,
-        email: null,
-        password: null,
-        passwordRepeat: null,
-      },
-      passwordRepeatRules: [
-        (v) => !!v || "Şifre Tekrarı Gerekli",
-        (v) => v === this.userData.password || "Şifreler Eşleşmiyor",
-      ],
-      emailRules: [
-        (v) => !!v || "E-Posta Gerekli",
-        (v) => /.+@.+\..+/.test(v) || "Geçerli E-Posta Giriniz",
-      ],
-      usernameRules: [
-        (v) => !!v || "Kullanıcı Adı Gerekli",
-        (v) =>
-          (v && v.length >= 3) || "Kullanıcı Adı En Az 4 Karakter Olmalıdır",
-      ],
-      passwordRules: [
-        (v) => !!v || "Şifre Gerekli",
-        (v) => (v && v.length >= 8) || "Şifre En Az 8 Karakter Olmalıdır",
-        (v) => (v && v.length < 15) || "Şifre En Fazla 15 Karakter Olmalıdır",
-      ],
-    };
-  },
-  methods: {
-    async submit() {
-      this.loading = true;
-      const { valid } = await this.$refs.form.validate();
+      password: null,
+      passwordRepeat: null,
+    });
+    const passwordRepeatRules = [
+      (v) => !!v || "Şifre Tekrarı Gerekli",
+      (v) => v === userData.value.password || "Şifreler Eşleşmiyor",
+    ];
+    const emailRules = [
+      (v) => !!v || "E-Posta Gerekli",
+      (v) => /.+@.+\..+/.test(v) || "Geçerli E-Posta Giriniz",
+    ];
+    const usernameRules = [
+      (v) => !!v || "Kullanıcı Adı Gerekli",
+      (v) => (v && v.length >= 3) || "Kullanıcı Adı En Az 4 Karakter Olmalıdır",
+    ];
+    const passwordRules = [
+      (v) => !!v || "Şifre Gerekli",
+      (v) => (v && v.length >= 8) || "Şifre En Az 8 Karakter Olmalıdır",
+      (v) => (v && v.length < 15) || "Şifre En Fazla 15 Karakter Olmalıdır",
+    ];
+    const submit = async () => {
+      loading.value = true;
+      const { valid } = await form.value.validate();
       if (valid) {
         const responseValidate = await validate(registerControl, {
-          username: this.userData.username,
-          email: this.userData.email,
-          password: this.userData.password,
-          passwordRepeat: this.userData.passwordRepeat,
+          username: userData.value.username,
+          email: userData.value.email,
+          password: userData.value.password,
+          passwordRepeat: userData.value.passwordRepeat,
         });
         if (responseValidate?.status) {
-          const response = await this.register({
-            username: this.userData.username,
-            email: this.userData.email,
-            password: this.userData.password,
-            passwordRepeat: this.userData.passwordRepeat,
+          const response = await userStore.register({
+            username: userData.value.username,
+            email: userData.value.email,
+            password: userData.value.password,
+            passwordRepeat: userData.value.passwordRepeat,
           });
           if (response?.status) {
             Swal.fire({
@@ -131,7 +129,7 @@ export default {
               icon: "success",
               confirmButtonText: "Tamam!",
             });
-            this.cleaner();
+            cleaner();
           } else {
             Swal.fire({
               title: response?.message,
@@ -139,7 +137,7 @@ export default {
               confirmButtonText: "Tamam!",
               width: "auto",
             });
-            this.loading = false;
+            loading.value = false;
           }
         } else {
           Swal.fire({
@@ -150,18 +148,31 @@ export default {
           });
         }
       }
-      this.loading = false;
-    },
-    loginPageGo() {
-      this.$router.push("/login");
-    },
-    cleaner() {
-      this.userData.username = null;
-      this.userData.email = null;
-      this.userData.password = null;
-      this.userData.passwordRepeat = null;
-    },
-    ...mapActions(useUserStore, ["register"]),
+      loading.value = false;
+    };
+    const loginPageGo = () => {
+      router.push("/login");
+    };
+    const cleaner = () => {
+      userData.value.username = null;
+      userData.value.email = null;
+      userData.value.password = null;
+      userData.value.passwordRepeat = null;
+    };
+    return {
+      form,
+      loading,
+      buttonText,
+      registerText,
+      userData,
+      passwordRepeatRules,
+      emailRules,
+      usernameRules,
+      passwordRules,
+      submit,
+      loginPageGo,
+      cleaner,
+    };
   },
 };
 </script>

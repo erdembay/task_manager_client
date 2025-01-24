@@ -47,40 +47,39 @@
   </v-sheet>
 </template>
 <script>
-import { mapActions } from "pinia";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useUserStore } from "../../stores/UserStore";
 import Swal from "sweetalert2";
 import { validate } from "@/middlewares/validate";
 import { loginControl } from "@/validations/Users";
 export default {
-  data() {
-    return {
-      email: null,
-      buttonText: "Giriş Yap",
-      registerText: "Kayıt Ol",
-      loading: false,
-      userData: {
-        username: null,
-        password: null,
-      },
-    };
-  },
-  methods: {
-    async submit() {
-      this.loading = true;
-      const { valid } = await this.$refs.form.validate();
+  setup() {
+    const router = useRouter();
+    const userStore = useUserStore();
+    const form = ref(null);
+    const loading = ref(false);
+    const buttonText = ref("Giriş Yap");
+    const registerText = ref("Kayıt Ol");
+    const userData = ref({
+      username: null,
+      password: null,
+    });
+    const submit = async () => {
+      loading.value = true;
+      const { valid } = await form.value.validate();
       if (valid) {
         const responseValidate = await validate(loginControl, {
-          username: this.userData.username,
-          password: this.userData.password,
+          username: userData.value.username,
+          password: userData.value.password,
         });
         if (responseValidate?.status) {
-          const response = await this.login({
-            username: this.userData.username,
-            password: this.userData.password,
+          const response = await userStore.login({
+            username: userData.value.username,
+            password: userData.value.password,
           });
           if (response?.status) {
-            this.$router.go();
+            router.go();
           } else {
             Swal.fire({
               title: response?.message,
@@ -88,7 +87,7 @@ export default {
               confirmButtonText: "Tamam!",
               width: "auto",
             });
-            this.loading = false;
+            loading.value = false;
           }
         } else {
           Swal.fire({
@@ -99,12 +98,20 @@ export default {
           });
         }
       }
-      this.loading = false;
-    },
-    registerPageGo() {
-      this.$router.push("/register");
-    },
-    ...mapActions(useUserStore, ["login"]),
+      loading.value = false;
+    };
+    const registerPageGo = () => {
+      router.push("/register");
+    };
+    return {
+      form,
+      loading,
+      buttonText,
+      registerText,
+      userData,
+      submit,
+      registerPageGo,
+    };
   },
 };
 </script>

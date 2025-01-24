@@ -8,10 +8,13 @@
   </v-row>
 </template>
 <script>
-export default {
-  props: ["title"],
-  data() {
-    return {};
+import { defineComponent } from "vue";
+export default defineComponent({
+  props: {
+    title: {
+      type: String,
+      required: true,
+    },
   },
-};
+});
 </script>

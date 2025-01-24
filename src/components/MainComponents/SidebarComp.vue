@@ -101,34 +101,34 @@
   </v-app-bar>
 </template>
 <script>
-import { mergeProps } from "vue";
-import logoSideBar from "../../../public/assets/logo.png";
-import { mapActions } from "pinia";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useUserStore } from "../../stores/UserStore";
+import logoSideBar from "../../../public/assets/logo.png";
+import { mergeProps } from "vue";
 export default {
   props: ["menuItems", "title", "user"],
-  data() {
-    return {
-      drawer: true,
-      rail: false,
-      logoSrc: logoSideBar,
+  setup() {
+    const router = useRouter();
+    const userStore = useUserStore();
+    const drawer = ref(true);
+    const logoSrc = ref(logoSideBar);
+    const drawClick = () => {
+      drawer.value = !drawer.value;
     };
-  },
-  methods: {
-    ...mapActions(useUserStore, ["logout"]),
-    navigate(route) {
-      this.$router.replace(route);
-    },
-    drawClick() {
-      this.drawer = !this.drawer;
-    },
-    mergeProps,
-    async logOutFunc() {
-      const response = await this.logout();
+    const logOutFunc = async () => {
+      const response = await userStore.logout();
       if (response.status) {
-        this.navigate("/login");
+        router.replace("/login");
       }
-    },
+    };
+    return {
+      drawer,
+      logoSrc,
+      drawClick,
+      logOutFunc,
+      mergeProps,
+    };
   },
 };
 </script>

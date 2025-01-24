@@ -2,17 +2,21 @@
   <v-footer border elevation="15">
     <v-row justify="space-between" align="center">
       <v-col cols="auto" align-self="start">
-        Copyright &copy; {{ new Date().getFullYear() }}
+        Copyright &copy; {{ currentYear }}
       </v-col>
     </v-row>
   </v-footer>
 </template>
 <script>
+import { ref } from "vue";
 import footerLogo from "../../../public/assets/logo.png";
 export default {
-  data() {
+  setup() {
+    const currentYear = ref(new Date().getFullYear());
+    const logo = ref(footerLogo);
     return {
-      footerLogo,
+      currentYear,
+      logo,
     };
   },
 };
