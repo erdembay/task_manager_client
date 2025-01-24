@@ -1,29 +1,39 @@
-# task_manager
+# Projeyi Ayağa Kaldırma
+Aşağıdaki adımları izleyerek projeyi yerel ortamınızda çalıştırabilirsiniz.
 
-## Project setup
+## Gereksinimler
+- Node.js
+- npm
 
-```
-npm install
-```
+## Kurulum
+### Projeyi Klonlama
+    ```sh
+    git clone https://github.com/erdembay/task_manager_client.git
+    cd task_manager_client
+    ```
 
-### Compiles and hot-reloads for development
+### Bağımlılıkları Yükleme
+    ```sh
+    npm install
+    ```
+### Ortam Değişkenlerini Ayarlama
+Proje kök dizininde `.env` dosyasında api bağlantılarını düzenleyiniz.
 
-```
+## Geliştirme Ortamı
+
+Geliştirme sunucusunu başlatmak için:
+```sh
 npm run serve
 ```
 
-### Compiles and minifies for production
+Tarayıcınızda `http://localhost` adresine giderek uygulamayı görüntüleyebilirsiniz.
 
-```
+## Build
+
+Projeyi üretim ortamı için derlemek için:
+```sh
 npm run build
 ```
 
-### Lints and fixes files
-
-```
-npm run lint
-```
-
-### Customize configuration
-
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Bu komut, `build` klasöründe optimize edilmiş üretim paketini oluşturacaktır.
+Projenin düzgün çalışması ve görüntülenebilmesi için sunucu ayarları `ngnix.conf` vs. dosyaların düzgün yapılandırılmış olması gerekmektedir.
