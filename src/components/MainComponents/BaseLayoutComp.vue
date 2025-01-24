@@ -2,7 +2,7 @@
   <sidebar-comp
     :user="user"
     :title="routeName"
-    :menuItems="menuItems.menuItems"
+    :menuItems="menuItems"
   ></sidebar-comp>
   <v-main>
     <v-container fluid>
