@@ -1,5 +1,9 @@
 import { defineStore } from "pinia";
-import { loginService, registerService } from "../utils/UserService";
+import {
+  loginService,
+  registerService,
+  logoutService,
+} from "../utils/UserService";
 import Cookies from "js-cookie";
 export const useUserStore = defineStore("userStore", {
   state: () => ({
@@ -58,6 +62,10 @@ export const useUserStore = defineStore("userStore", {
     },
     async logout() {
       try {
+        const response = await logoutService();
+        if (!response?.status) {
+          return { message: response?.message, status: false };
+        }
         this.userInfo = null;
         Cookies.remove("userInfo");
         this.auth = false;

@@ -5,6 +5,7 @@ const baseURL = process.env.VUE_APP_API_BASE_URL;
 const port = process.env.VUE_APP_API_PORT;
 export const nodeApiAxiosTaff = axios.create({
   baseURL: `${baseURL}:${port}`,
+  withCredentials: true,
 });
 nodeApiAxiosTaff.interceptors.response.use(
   (response) => {
